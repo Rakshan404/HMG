@@ -1,9 +1,11 @@
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 import config
 from decoys.http.app import create_app
 from decoys.http.logger import log_event
+import decoys.http.logger as http_logger
 
 
 def setup_app():
@@ -53,6 +55,22 @@ def test_crlf_cannot_forge_log_records(caplog):
     event = json.loads(caplog.records[0].message)
     assert event["user_agent"] == "ua\r\nforged"
     assert event["username"] == "u\nforged"
+
+
+def test_events_persist_as_appended_jsonl_without_passwords(tmp_path, monkeypatch, caplog):
+    event_path = tmp_path / "data" / "http_events.jsonl"
+    monkeypatch.setattr(http_logger, "EVENTS_FILE", event_path)
+    with caplog.at_level("INFO", logger="hmg.http"):
+        log_event(source_ip="127.0.0.1", user_agent="agent", endpoint="/login", username="operator")
+        log_event(source_ip="127.0.0.2", user_agent="agent2", endpoint="/login", username="second")
+
+    assert event_path.parent.is_dir()
+    lines = event_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    events = [json.loads(line) for line in lines]
+    assert [event["username"] for event in events] == ["operator", "second"]
+    assert all("password" not in event for event in events)
+    assert "sample-password" not in event_path.read_text(encoding="utf-8")
 
 
 def test_xss_username_is_not_reflected_as_executable_html():
