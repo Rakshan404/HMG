@@ -1,0 +1,3 @@
+Flask>=3.0,<4.0
+
+# Development/testing dependency: install with `python -m pip install pytest`
