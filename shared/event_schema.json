@@ -1,0 +1,44 @@
+
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HMG Security Event",
+  "type": "object",
+  "required": [
+    "event_id",
+    "timestamp",
+    "source_ip",
+    "source_mac",
+    "honeypot",
+    "event",
+    "details"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_ip": {
+      "type": "string",
+      "format": "ipv4"
+    },
+    "source_mac": {
+      "type": ["string", "null"]
+    },
+    "honeypot": {
+      "type": "string",
+      "enum": ["HTTP", "SSH", "SMB"]
+    },
+    "event": {
+      "type": "string",
+      "minLength": 1
+    },
+    "details": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}
