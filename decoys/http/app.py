@@ -1,3 +1,8 @@
+from flask import Flask
+import config
+
+from decoys.http.logger import log_event
+from decoys.http.routes import bp
 """Local-only Flask entry point for the HTTP DVR/NVR honeypot."""
 from flask import Flask
 import config
